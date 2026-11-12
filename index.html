@@ -221,7 +221,7 @@
             <div class="form-progress" aria-live="polite">
               <div class="form-progress-head">
                 <span class="form-progress-title">Your progress</span>
-                <span class="form-progress-text" id="formProgressText">0 of 7 required fields completed</span>
+                <span class="form-progress-text" id="formProgressText">0 of 8 required fields completed</span>
               </div>
               <div class="form-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="formProgressBarWrap" aria-label="Form completion progress">
                 <div class="form-progress-fill" id="formProgressFill"></div>
@@ -389,10 +389,21 @@
             </fieldset>
 
             <div class="field consent-field">
-              <label class="consent-check" for="consent">
-                <input type="checkbox" id="consent" name="consent" />
-                <span>Show my idea publicly on the <a href="ideas.html">Ideas Wall</a> — only my name, my idea and its progress status will be shown. Never my USN, email or anything else. (The team still approves every idea before it appears.)</span>
-              </label>
+              <span class="field-label" id="consentLabel">Can we show your idea on the public <a href="ideas.html">Ideas Wall</a>? <span class="req" aria-hidden="true">*</span></span>
+              <p class="consent-note">Only your name, your idea and its progress status would be shown — never your USN, email or anything else. The team still approves every idea before it appears on the wall.</p>
+              <div class="choice-cards choice-cards-2" role="radiogroup" aria-labelledby="consentLabel" aria-describedby="err-consent">
+                <label class="select-card">
+                  <input type="radio" name="consentPublic" value="Yes" />
+                  <span class="select-card-icon" aria-hidden="true">✅</span>
+                  <span class="select-card-text">I Accept</span>
+                </label>
+                <label class="select-card">
+                  <input type="radio" name="consentPublic" value="No" />
+                  <span class="select-card-icon" aria-hidden="true">🔒</span>
+                  <span class="select-card-text">I Don't Accept</span>
+                </label>
+              </div>
+              <p class="field-error" id="err-consent" role="alert" hidden></p>
             </div>
 
             <div class="form-error-banner" id="formError" role="alert" hidden>

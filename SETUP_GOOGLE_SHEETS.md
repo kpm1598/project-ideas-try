@@ -130,7 +130,7 @@ The updated `Code.gs` adds 5 columns to the "Website Submissions" tab (they are 
 
 | Column | Who sets it | Meaning |
 |---|---|---|
-| Public Consent | the student (form checkbox) | "Yes" = the student agreed to be on the public wall |
+| Public Consent | the student (required form choice: I Accept / I Don't Accept) | "Yes" = the student agreed to be on the public wall |
 | Status | **you** | `Submitted` → `In Progress` → `Completed` |
 | Live Project URL | **you** | the working project's link (paste when Completed) |
 | Repo URL | **you** | the GitHub repo link (paste when Completed) |

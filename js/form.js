@@ -47,7 +47,7 @@
   }
 
   // ---------- progress indicator ----------
-  // Progress = how many of the 7 required groups are completed.
+  // Progress = how many of the 8 required groups are completed.
   function updateProgress() {
     var done = 0;
     if (value("fullName")) done++;
@@ -57,13 +57,14 @@
     if (radioValue("appType")) done++;
     if (value("ideaExplain")) done++;
     if (value("problem")) done++;
-    var pct = Math.round((done / 7) * 100);
+    if (radioValue("consentPublic")) done++;
+    var pct = Math.round((done / 8) * 100);
     if (progressFill) progressFill.style.width = pct + "%";
     if (progressWrap) progressWrap.setAttribute("aria-valuenow", String(pct));
     if (progressText) {
-      progressText.textContent = done === 7
-        ? "All 7 required fields completed — ready to submit!"
-        : done + " of 7 required fields completed";
+      progressText.textContent = done === 8
+        ? "All 8 required fields completed — ready to submit!"
+        : done + " of 8 required fields completed";
     }
   }
   form.addEventListener("input", updateProgress);
@@ -126,6 +127,15 @@
     if (!value("ideaExplain")) fail("ideaExplain", "Please explain your idea in a few lines."); else pass("ideaExplain");
     if (!value("problem")) fail("problem", "Please tell us what problem your idea solves."); else pass("problem");
 
+    if (!radioValue("consentPublic")) {
+      setError("consent", "Please choose one — I Accept or I Don't Accept — so we know whether your idea may appear on the Ideas Wall.");
+      ok = false;
+      var firstConsent = form.querySelector('input[name="consentPublic"]');
+      if (!firstBad && firstConsent) firstBad = firstConsent;
+    } else {
+      setError("consent", "");
+    }
+
     if (firstBad && firstBad.focus) firstBad.focus();
     return ok;
   }
@@ -140,6 +150,9 @@
       var cards = form.querySelector(".select-cards");
       if (cards) cards.classList.remove("invalid");
     });
+  });
+  form.querySelectorAll('input[name="consentPublic"]').forEach(function (r) {
+    r.addEventListener("change", function () { setError("consent", ""); });
   });
 
   // ---------- submit ----------
@@ -187,7 +200,7 @@
       aiInvolved: radioValue("aiInvolved"),
       collaborate: radioValue("collaborate"),
       comments: value("comments"),
-      consent: (document.getElementById("consent") && document.getElementById("consent").checked) ? "Yes" : "No",
+      consent: radioValue("consentPublic") || "No",
       pageUrl: window.location.href
     };
 

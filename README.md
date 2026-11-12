@@ -77,6 +77,6 @@ Then open http://localhost:8000 in your browser.
 A second page, **`ideas.html`**, shows approved student ideas as cards with a progress status:
 
 - **Submitted** — approved and waiting, **In Progress** — being built, **Completed** — finished, with **View Project** (live preview) and **GitHub Repo** buttons.
-- Students opt in via a consent checkbox on the form; the site owner approves each idea from the Google Sheet (set `Visible on Website` = Yes, update `Status`, paste the two links when Completed).
+- Students choose via a mandatory "I Accept / I Don't Accept" option on the form; the site owner approves each idea from the Google Sheet (set `Visible on Website` = Yes, update `Status`, paste the two links when Completed).
 - Data comes from the same Apps Script web app: `GET <APPS_SCRIPT_URL>?feed=ideas`. The feed is **whitelisted** — it only ever returns name, idea, a short explanation excerpt, status and Completed links, and only for consented + approved rows. USN, email and all other answers never leave the Sheet.
 - `js/ideas.js` renders cards with `textContent` only (no `innerHTML`), so submissions cannot inject markup into the page.

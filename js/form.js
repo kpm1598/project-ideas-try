@@ -187,7 +187,6 @@
       aiInvolved: radioValue("aiInvolved"),
       collaborate: radioValue("collaborate"),
       comments: value("comments"),
-      consent: (document.getElementById("consent") && document.getElementById("consent").checked) ? "Yes" : "No",
       pageUrl: window.location.href
     };
 

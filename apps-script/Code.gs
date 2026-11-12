@@ -27,6 +27,28 @@ var SPREADSHEET_ID = "";
 // headers if it does not exist yet.
 var SHEET_NAME = "Website Submissions";
 
+// PRIVATE summary tab — "for our eyes only". The main tab holds every
+// long answer; this Overview tab mirrors each submission as ONE short
+// row (short date, short text) so the owner can understand a
+// submission at a glance. It lives only inside this spreadsheet —
+// nothing from it is ever sent to the website.
+var OVERVIEW_NAME = "Overview";
+var OVERVIEW_HEADERS = [
+  "Date",
+  "Student Name",
+  "USN",
+  "Email",
+  "Idea Name",
+  "Type",
+  "Idea in Short",
+  "Problem in Short",
+  "AI?",
+  "Collaborate?",
+  "Consent",
+  "Status",
+  "On Wall?"
+];
+
 // Column order in the sheet — timestamp, submission ID, then the
 // 12 form questions, then the page the submission came from.
 var HEADERS = [
@@ -112,7 +134,7 @@ function doPost(e) {
           }
         }
       }
-      sheet.appendRow([
+      var newRow = [
         new Date(),
         p.submissionId || "",
         p.fullName || "",
@@ -133,7 +155,11 @@ function doPost(e) {
         "",
         "",
         "No"
-      ]);
+      ];
+      sheet.appendRow(newRow);
+      // Mirror a short version into the private Overview tab. Wrapped
+      // separately: the Overview must NEVER break a real submission.
+      try { appendOverviewRow_(newRow); } catch (ovErr) { /* ignore */ }
     } finally {
       lock.releaseLock();
     }
@@ -144,13 +170,48 @@ function doPost(e) {
 }
 
 /**
+ * When the script is bound to the spreadsheet, opening the sheet adds
+ * a "Project Ideas" menu with one useful action: rebuild the Overview
+ * tab from the main tab (use it after editing Status / Visible cells
+ * in "Website Submissions", so the Overview matches again).
+ */
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu("Project Ideas")
+      .addItem("Rebuild Overview tab", "rebuildOverview")
+      .addToUi();
+  } catch (err) { /* not bound to a sheet — menu just doesn't appear */ }
+}
+
+/** Menu action (also safe to run from the script editor). */
+function rebuildOverview() {
+  var n = rebuildOverview_();
+  try {
+    SpreadsheetApp.getUi().alert("Overview rebuilt: " + n + " submission(s) summarised.");
+  } catch (err) { /* no UI (editor run) — the count is in the log */ }
+  return n;
+}
+
+/**
  * GET handler.
  * - No parameters: simple health check (open the Web App URL to test).
  * - ?feed=ideas: the public Ideas Wall feed (see ideasFeed_ below).
+ * - ?action=rebuild-overview: rebuilds the private Overview tab from
+ *   the main tab and reports how many rows it summarised. It exposes
+ *   NO submission data — it only reorganises the owner's own sheet.
  */
 function doGet(e) {
   if (e && e.parameter && e.parameter.feed === "ideas") {
     return ideasFeed_();
+  }
+  if (e && e.parameter && e.parameter.action === "rebuild-overview") {
+    try {
+      var n = rebuildOverview_();
+      return json_({ result: "ok", action: "rebuild-overview", rows: n });
+    } catch (err) {
+      return json_({ result: "error", error: String(err) });
+    }
   }
   return json_({ result: "ok", message: "Project Ideas Apps Script is running. Submit via the website form." });
 }
@@ -198,6 +259,100 @@ function ideasFeed_() {
   } catch (err) {
     return json_({ result: "error", error: String(err) });
   }
+}
+
+// ---------- Private Overview tab ----------
+
+function getOverviewSheet_() {
+  var ss = SPREADSHEET_ID
+    ? SpreadsheetApp.openById(SPREADSHEET_ID)
+    : SpreadsheetApp.getActiveSpreadsheet();
+  var ov = ss.getSheetByName(OVERVIEW_NAME);
+  if (!ov) ov = ss.insertSheet(OVERVIEW_NAME);
+  if (ov.getLastRow() === 0) {
+    ov.appendRow(OVERVIEW_HEADERS);
+    ov.setFrozenRows(1);
+    formatOverview_(ov);
+  }
+  return ov;
+}
+
+function formatOverview_(ov) {
+  try {
+    var header = ov.getRange(1, 1, 1, OVERVIEW_HEADERS.length);
+    header.setFontWeight("bold");
+    var widths = [130, 150, 90, 190, 200, 130, 300, 300, 55, 95, 70, 95, 70];
+    for (var i = 0; i < widths.length; i++) ov.setColumnWidth(i + 1, widths[i]);
+    ov.getRange(1, 1, Math.max(ov.getLastRow(), 1), OVERVIEW_HEADERS.length).createFilter();
+  } catch (err) { /* formatting is a nicety, never fatal */ }
+}
+
+// One short Overview row from one full "Website Submissions" row.
+// Column indexes match HEADERS order in the main tab.
+function overviewRow_(row) {
+  var when = row[0];
+  var dateStr = "";
+  try {
+    dateStr = when instanceof Date
+      ? Utilities.formatDate(when, Session.getScriptTimeZone(), "dd MMM, h:mm a")
+      : String(when || "");
+  } catch (err) { dateStr = String(when || ""); }
+  return [
+    dateStr,
+    String(row[2] || "").trim(),
+    String(row[3] || "").trim(),
+    String(row[4] || "").trim(),
+    String(row[5] || "").trim(),
+    shortType_(row[6]),
+    short_(row[7], 90),
+    short_(row[8], 90),
+    String(row[11] || "").trim(),
+    String(row[12] || "").trim(),
+    String(row[15] || "").trim(),
+    String(row[16] || "Submitted").trim(),
+    truthy_(row[19]) ? "Yes" : "No"
+  ];
+}
+
+function appendOverviewRow_(fullRow) {
+  var ov = getOverviewSheet_();
+  ov.appendRow(overviewRow_(fullRow));
+}
+
+// Rebuilds the whole Overview from the main tab (newest at the bottom,
+// same order as "Website Submissions"). Returns the row count.
+function rebuildOverview_() {
+  var sheet = getSheet_();
+  var values = sheet.getDataRange().getValues();
+  var ov = getOverviewSheet_();
+  if (ov.getLastRow() > 1) {
+    ov.getRange(2, 1, ov.getLastRow() - 1, OVERVIEW_HEADERS.length).clearContent();
+  }
+  var rows = [];
+  for (var r = 1; r < values.length; r++) rows.push(overviewRow_(values[r]));
+  if (rows.length) {
+    ov.getRange(2, 1, rows.length, OVERVIEW_HEADERS.length).setValues(rows);
+  }
+  return rows.length;
+}
+
+function short_(text, max) {
+  var s = String(text || "").replace(/\s+/g, " ").trim();
+  if (s.length > max) s = s.slice(0, max - 1).trim() + "…";
+  return s;
+}
+
+function shortType_(t) {
+  var s = String(t || "").trim();
+  var map = {
+    "Web Application": "Web App",
+    "Mobile Application (Android / iOS)": "Mobile App",
+    "AI-powered Application": "AI App",
+    "Desktop Application": "Desktop App",
+    "Not sure yet": "Not sure",
+    "Other software project": "Other"
+  };
+  return map[s] || s;
 }
 
 function truthy_(v) {

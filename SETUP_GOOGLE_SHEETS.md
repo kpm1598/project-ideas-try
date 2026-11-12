@@ -149,3 +149,26 @@ After pasting the new `Code.gs`, deploy it with **Deploy → Manage deployments 
 
 ## Privacy — the important part
 The wall's data feed (`/exec?feed=ideas`) is whitelisted inside the script: it only ever sends a student's **name, idea name, a short explanation excerpt, status, and Completed-project links** — and only for rows where consent = Yes AND Visible = Yes. USN, email and all other answers never leave the Sheet. **Never** use Google Sheets' own "File → Share → Publish to web" on this spreadsheet — that would publish everything, including emails.
+
+## The Overview tab (private summary)
+
+The script also maintains a private **Overview** tab inside the same
+spreadsheet — a short, easy-to-read summary of every submission, so
+you don't have to read the long answers in "Website Submissions".
+
+Each Overview row shows: Date · Student Name · USN · Email · Idea
+Name · Type (shortened, e.g. "Web App") · Idea in Short · Problem in
+Short · AI? · Collaborate? · Consent · Status · On Wall?
+
+- New submissions are added to the Overview automatically.
+- If you edit Status / Visible / links in "Website Submissions",
+  refresh the Overview afterwards: in the sheet, use the
+  **Project Ideas → Rebuild Overview tab** menu (appears after you
+  save the latest Code.gs and reload the sheet; the first click may
+  ask you to authorise the script — that's normal), or open
+  `<your Web App URL>?action=rebuild-overview` in a browser.
+- The Overview is **private**: it exists only inside your Google
+  Sheet. Nothing from it is sent to the website — the public Ideas
+  Wall feed still exposes only name, idea, short excerpt, status and
+  (for Completed projects) the two links. Never share the spreadsheet
+  itself publicly.

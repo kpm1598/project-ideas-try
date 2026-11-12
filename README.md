@@ -71,3 +71,12 @@ Then open http://localhost:8000 in your browser.
 - Client-side validation with inline messages, a loading state on the submit button, and duplicate protection at two levels (the button locks while submitting, and every submission carries a unique ID the Apps Script deduplicates on, so retries can't create double rows).
 - The success confirmation appears **only** when the Apps Script backend replies `{"result":"success"}` — any network, HTTP or script error shows the error state and keeps the visitor's answers in the form.
 - There is **no Google Forms embed anywhere** in this project — the form is fully custom HTML/CSS/JS.
+
+## Ideas Wall (v4)
+
+A second page, **`ideas.html`**, shows approved student ideas as cards with a progress status:
+
+- **Submitted** — approved and waiting, **In Progress** — being built, **Completed** — finished, with **View Project** (live preview) and **GitHub Repo** buttons.
+- Students opt in via a consent checkbox on the form; the site owner approves each idea from the Google Sheet (set `Visible on Website` = Yes, update `Status`, paste the two links when Completed).
+- Data comes from the same Apps Script web app: `GET <APPS_SCRIPT_URL>?feed=ideas`. The feed is **whitelisted** — it only ever returns name, idea, a short explanation excerpt, status and Completed links, and only for consented + approved rows. USN, email and all other answers never leave the Sheet.
+- `js/ideas.js` renders cards with `textContent` only (no `innerHTML`), so submissions cannot inject markup into the page.

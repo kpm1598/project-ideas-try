@@ -118,3 +118,34 @@ Every submission carries a unique Submission ID (stored in the sheet's second co
 ## Privacy note
 
 The form collects only the 12 answers shown on it. The sheet is visible only to people you share the spreadsheet with — don't share it publicly, since it contains submitters' names/emails.
+
+---
+
+# Ideas Wall — how it works & how you run it (v4)
+
+The website's **Ideas Wall** page (`ideas.html`) shows approved student ideas with their progress. You control everything from the Sheet — no code changes per project.
+
+## What's new in the script
+The updated `Code.gs` adds 5 columns to the "Website Submissions" tab (they are created automatically the first time the new script runs — you don't add them by hand):
+
+| Column | Who sets it | Meaning |
+|---|---|---|
+| Public Consent | the student (form checkbox) | "Yes" = the student agreed to be on the public wall |
+| Status | **you** | `Submitted` → `In Progress` → `Completed` |
+| Live Project URL | **you** | the working project's link (paste when Completed) |
+| Repo URL | **you** | the GitHub repo link (paste when Completed) |
+| Visible on Website | **you** | `Yes` = show on the wall, `No` = hidden |
+
+After pasting the new `Code.gs`, deploy it with **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy** — the `/exec` URL stays the same, so the form keeps working untouched.
+
+## To publish an idea on the wall
+1. Read the submission in the Sheet.
+2. Check the student's **Public Consent** says `Yes` (if it says No, leave the idea hidden — they didn't agree to public display).
+3. Set **Visible on Website** to `Yes`. The idea appears on the wall with status `Submitted`.
+
+## To update progress
+- Started building it? Change **Status** to `In Progress`.
+- Finished? Change **Status** to `Completed` and paste the **Live Project URL** and **Repo URL**. The wall card now shows **View Project** and **GitHub Repo** buttons. (Buttons appear only for Completed projects with links filled in.)
+
+## Privacy — the important part
+The wall's data feed (`/exec?feed=ideas`) is whitelisted inside the script: it only ever sends a student's **name, idea name, a short explanation excerpt, status, and Completed-project links** — and only for rows where consent = Yes AND Visible = Yes. USN, email and all other answers never leave the Sheet. **Never** use Google Sheets' own "File → Share → Publish to web" on this spreadsheet — that would publish everything, including emails.

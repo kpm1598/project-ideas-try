@@ -44,7 +44,12 @@ var HEADERS = [
   "Does Your Idea Involve AI?",
   "Interested in Collaborating?",
   "Additional Suggestions or Comments",
-  "Submitted From (Page URL)"
+  "Submitted From (Page URL)",
+  "Public Consent",
+  "Status",
+  "Live Project URL",
+  "Repo URL",
+  "Visible on Website"
 ];
 
 function getSheet_() {
@@ -61,8 +66,25 @@ function getSheet_() {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
     sheet.setFrozenRows(1);
+  } else {
+    ensureHeaders_(sheet);
   }
   return sheet;
+}
+
+// Fills in any missing header cells (e.g. columns added in a newer
+// version of this script) without touching existing headers or data.
+function ensureHeaders_(sheet) {
+  var range = sheet.getRange(1, 1, 1, HEADERS.length);
+  var row = range.getValues()[0];
+  var changed = false;
+  for (var i = 0; i < HEADERS.length; i++) {
+    if (!row[i]) {
+      row[i] = HEADERS[i];
+      changed = true;
+    }
+  }
+  if (changed) range.setValues([row]);
 }
 
 /** Handles the website form's POST request. */
@@ -105,7 +127,12 @@ function doPost(e) {
         p.aiInvolved || "",
         p.collaborate || "",
         p.comments || "",
-        p.pageUrl || ""
+        p.pageUrl || "",
+        p.consent === "Yes" ? "Yes" : "No",
+        "Submitted",
+        "",
+        "",
+        "No"
       ]);
     } finally {
       lock.releaseLock();
@@ -116,9 +143,66 @@ function doPost(e) {
   }
 }
 
-/** Simple health check — open the Web App URL in a browser to test. */
-function doGet() {
+/**
+ * GET handler.
+ * - No parameters: simple health check (open the Web App URL to test).
+ * - ?feed=ideas: the public Ideas Wall feed (see ideasFeed_ below).
+ */
+function doGet(e) {
+  if (e && e.parameter && e.parameter.feed === "ideas") {
+    return ideasFeed_();
+  }
   return json_({ result: "ok", message: "Project Ideas Apps Script is running. Submit via the website form." });
+}
+
+/**
+ * Public feed for the Ideas Wall page.
+ *
+ * PRIVACY CONTRACT — this is the ONLY data that ever leaves the sheet:
+ * a row is included ONLY when the student consented ("Public Consent"
+ * = Yes) AND the owner approved it ("Visible on Website" = Yes).
+ * Each idea exposes ONLY: student name, idea name, a short excerpt of
+ * the explanation, status, and — for Completed projects only — the
+ * live project URL and repo URL. USN, email and every other answer
+ * NEVER appear here. Never "publish" the sheet itself to the web.
+ */
+function ideasFeed_() {
+  try {
+    var sheet = getSheet_();
+    var values = sheet.getDataRange().getValues();
+    var C = { name: 2, idea: 5, explain: 7, consent: 15, status: 16, live: 17, repo: 18, visible: 19 };
+    var STATUSES = ["Submitted", "In Progress", "Completed"];
+    var ideas = [];
+    for (var r = 1; r < values.length; r++) {
+      var row = values[r];
+      if (!truthy_(row[C.visible])) continue;              // owner approval required
+      if (String(row[C.consent] || "").trim().toLowerCase() !== "yes") continue; // student consent required
+      var ideaName = String(row[C.idea] || "").trim();
+      if (!ideaName) continue;
+      var status = String(row[C.status] || "").trim();
+      if (STATUSES.indexOf(status) === -1) status = "Submitted";
+      var explain = String(row[C.explain] || "").replace(/\s+/g, " ").trim();
+      if (explain.length > 200) explain = explain.slice(0, 197).trim() + "…";
+      var done = status === "Completed";
+      ideas.push({
+        name: String(row[C.name] || "").trim(),
+        idea: ideaName,
+        explanation: explain,
+        status: status,
+        liveUrl: done ? String(row[C.live] || "").trim() : "",
+        repoUrl: done ? String(row[C.repo] || "").trim() : ""
+      });
+    }
+    ideas.reverse(); // newest submission first
+    return json_({ result: "ok", ideas: ideas });
+  } catch (err) {
+    return json_({ result: "error", error: String(err) });
+  }
+}
+
+function truthy_(v) {
+  var s = String(v || "").trim().toLowerCase();
+  return s === "yes" || s === "true" || s === "y";
 }
 
 function json_(obj) {

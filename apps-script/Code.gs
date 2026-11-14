@@ -358,7 +358,8 @@ function handleChat_(p) {
     var message = String(p.message || "").trim().slice(0, 500);
     if (!message) return json_({ result: "error", error: "Empty message." });
 
-    var key = PropertiesService.getScriptProperties().getProperty("GROQ_API_KEY");
+    // .trim() guards against stray spaces/newlines from pasting the key.
+    var key = String(PropertiesService.getScriptProperties().getProperty("GROQ_API_KEY") || "").trim();
     if (!key) return json_({ result: "error", error: "Chat is not configured yet." });
 
     // The system prompt carries the fixed knowledge PLUS the live
@@ -384,8 +385,13 @@ function handleChat_(p) {
       muteHttpExceptions: true
     });
 
-    if (resp.getResponseCode() !== 200) {
-      return json_({ result: "error", error: "AI service error." });
+    var code = resp.getResponseCode();
+    if (code !== 200) {
+      // Include Groq's own error detail (never the key) so problems
+      // like a wrong key or unknown model are diagnosable, not silent.
+      var detail = "";
+      try { detail = String(resp.getContentText() || "").slice(0, 200); } catch (e2) { /* ignore */ }
+      return json_({ result: "error", error: "AI service error (HTTP " + code + ")" + (detail ? ": " + detail : "") });
     }
     var data = JSON.parse(resp.getContentText());
     var reply = "";
@@ -396,8 +402,19 @@ function handleChat_(p) {
     if (reply.length > 1500) reply = reply.slice(0, 1497).trim() + "…";
     return json_({ result: "success", reply: reply });
   } catch (err) {
-    return json_({ result: "error", error: "Chat failed." });
+    return json_({ result: "error", error: "Chat failed: " + (err && err.message ? err.message : String(err)) });
   }
+}
+
+/**
+ * Manual diagnostic — run this from the Apps Script editor
+ * (select testChat in the function dropdown → Run → View → Logs).
+ * It calls the AI exactly like the website does and logs the raw
+ * result, so a key/network/model problem shows its real reason.
+ */
+function testChat() {
+  var out = handleChat_({ message: "In one short sentence, what is this website?" });
+  Logger.log(out.getContent());
 }
 
 // Accepts the widget's JSON history string; keeps only the last 6

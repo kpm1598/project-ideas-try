@@ -172,3 +172,48 @@ Short · AI? · Collaborate? · Consent · Status · On Wall?
   Wall feed still exposes only name, idea, short excerpt, status and
   (for Completed projects) the two links. Never share the spreadsheet
   itself publicly.
+
+# AI help chat — how it works & how you turn it on (v5)
+
+The website has an "Idea Assistant" chat widget (bottom-right corner
+of every page). Visitors ask questions about the website; the same
+Apps Script you already use calls the **Groq AI API** (model
+`openai/gpt-oss-20b` — the same free Groq account as LabhSetu) and
+returns a short, website-only answer.
+
+## To turn it on (one time)
+
+1. Paste the latest `apps-script/Code.gs` into your Apps Script
+   project (this is the same paste that activates the Overview tab).
+2. In the Apps Script editor: **Project Settings** (gear icon) →
+   **Script Properties** → **Add script property**:
+   - Property: `GROQ_API_KEY`
+   - Value: your Groq API key (the one from console.groq.com — the
+     same key LabhSetu uses on your laptop).
+3. **Deploy → Manage deployments → edit (pencil) → Version: New
+   version → Deploy.** The Web App URL does not change.
+4. Open the website, click the chat button, ask "How do I submit an
+   idea?" — you should get a real AI answer.
+
+## Rules the chat follows
+
+- It is a **real AI** (Groq), not a fixed if/else script — it
+  understands questions asked in the visitor's own words, including
+  follow-ups.
+- Its knowledge is this website, Kasim, and Kasim's projects
+  (LabhSetu, CleanOS, Smart Warehouse AI, Aarohi, Project Ideas).
+- **The list of ideas on the Ideas Wall is read LIVE from your sheet
+  on every chat** (only rows with Public Consent = Yes AND Visible
+  on Website = Yes — the same privacy filter as the wall itself).
+  Approve or hide an idea in the sheet and the assistant's answers
+  update automatically; there is nothing to edit. USN and email are
+  never sent to the AI.
+- The key lives ONLY in Script Properties — never in Code.gs, never
+  on the website — so visitors cannot see or steal it.
+- It does not save chat messages, and it tells people to use the
+  form to actually submit an idea.
+- If the key is missing or Groq is down, the widget shows a friendly
+  fallback pointing to the FAQs — the rest of the site is unaffected.
+- Groq's free tier (1,000 requests/day) is far more than this site
+  needs. Worst case if it is ever exhausted: chat shows the fallback
+  until the next day; submissions keep working normally.

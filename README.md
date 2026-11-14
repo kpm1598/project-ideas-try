@@ -80,3 +80,12 @@ A second page, **`ideas.html`**, shows approved student ideas as cards with a pr
 - Students choose via a mandatory "I Accept / I Don't Accept" option on the form; the site owner approves each idea from the Google Sheet (set `Visible on Website` = Yes, update `Status`, paste the two links when Completed).
 - Data comes from the same Apps Script web app: `GET <APPS_SCRIPT_URL>?feed=ideas`. The feed is **whitelisted** — it only ever returns name, idea, a short explanation excerpt, status and Completed links, and only for consented + approved rows. USN, email and all other answers never leave the Sheet.
 - `js/ideas.js` renders cards with `textContent` only (no `innerHTML`), so submissions cannot inject markup into the page.
+
+## AI help chat (v5)
+
+An **"Idea Assistant"** chat widget (bottom-right of every page, `js/chat.js`) answers visitors' questions about this website:
+
+- It is a **real AI** (Groq `openai/gpt-oss-20b`, free tier) called by the same Apps Script backend (`POST action=chat`) — not a fixed if/else script. The API key lives only in the script's **Script Properties** (`GROQ_API_KEY`); it never appears in this repo or on the website.
+- Its knowledge is grounded in the website: how submission and consent work, the statuses, Kasim and his projects — plus the **live Ideas Wall list, read fresh from the Sheet on every chat** through the same consent + approval privacy filter as the wall feed (no USN/email is ever sent to the AI). Approving or hiding an idea in the Sheet updates the assistant's answers automatically.
+- Chat messages are not stored, and the assistant directs would-be submitters to the form. If the AI is unconfigured or unreachable, the widget shows a friendly FAQ fallback and the rest of the site is unaffected.
+- Setup (one-time): paste the latest `Code.gs`, add the `GROQ_API_KEY` script property, deploy a New version — see `SETUP_GOOGLE_SHEETS.md`, "AI help chat (v5)".

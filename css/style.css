@@ -268,6 +268,14 @@ a{color:inherit}
 .idea-brief{background:var(--bg-3);border:1px solid rgba(130,87,255,.45);border-radius:.9rem;padding:1.1rem 1.25rem;margin:1.3rem 0 .4rem}
 .idea-brief-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B79CFF;margin-bottom:.45rem}
 .idea-brief p{color:var(--white);line-height:1.65}
+/* Structured brief rows — shared by wall cards and the idea page */
+.brief-parts{display:flex;flex-direction:column}
+.brief-parts-card{flex:1;margin-top:.35rem}
+.brief-part{padding:.5rem 0;border-top:1px solid rgba(255,255,255,.08)}
+.brief-part:first-child{padding-top:.1rem;border-top:none}
+.brief-part-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B79CFF;margin-bottom:.18rem}
+.brief-part-text{color:var(--white);line-height:1.6;font-size:.94rem}
+.nav-cta[aria-current="page"]{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--purple)}
 .idea-subhead{font-size:1.18rem;margin:1.6rem 0 .6rem}
 
 

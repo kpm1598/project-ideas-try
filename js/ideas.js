@@ -5,11 +5,12 @@
 
    PRIVACY: the feed is whitelisted on the server — it only ever
    contains the idea's Public ID, name, idea, a short brief (the AI
-   brief when one exists, else a short explanation excerpt), status
-   and, for Completed projects, the live + repo links. This file
-   reads ONLY those fields, and renders everything with textContent
-   (never innerHTML), so a submission can never inject markup into
-   the page. Each card links to the idea's own page (idea.html).
+   brief when one exists, else a short explanation excerpt), the
+   five structured brief parts (briefParts), status and, for
+   Completed projects, the live + repo links. This file reads ONLY
+   those fields, and renders everything with textContent (never
+   innerHTML), so a submission can never inject markup into the
+   page. Each card links to the idea's own page (idea.html).
    ===================================================================== */
 (function () {
   "use strict";
@@ -56,6 +57,35 @@
     return node;
   }
 
+  // The five structured brief parts, in display order — the same
+  // labels and .brief-part row classes as the idea's own page.
+  var BRIEF_PARTS = [
+    ["problem", "Problem"],
+    ["solution", "Solution"],
+    ["build", "What we'll build"],
+    ["tech", "Tech stack"],
+    ["audience", "Built for"]
+  ];
+
+  // Builds the structured brief block for a card, or null when the
+  // idea has no parts at all (caller then falls back to the flat
+  // brief/excerpt paragraph, exactly as cards did before).
+  function briefPartsEl(parts) {
+    if (!parts || typeof parts !== "object") return null;
+    var wrap = el("div", "brief-parts brief-parts-card");
+    var shown = 0;
+    BRIEF_PARTS.forEach(function (def) {
+      var v = typeof parts[def[0]] === "string" ? parts[def[0]].trim() : "";
+      if (!v) return;
+      var row = el("div", "brief-part");
+      row.appendChild(el("span", "brief-part-label", def[1]));
+      row.appendChild(el("p", "brief-part-text", v));
+      wrap.appendChild(row);
+      shown++;
+    });
+    return shown ? wrap : null;
+  }
+
   function card(idea) {
     var status = STATUS_CLASS[idea.status] ? idea.status : "Submitted";
 
@@ -68,11 +98,19 @@
     article.appendChild(head);
 
     if (idea.name) article.appendChild(el("p", "idea-card-by", "by " + idea.name));
-    // The card shows the AI brief; the server already falls back to
-    // the explanation excerpt when a brief is missing, and we fall
-    // back once more here for older cached feeds.
-    var cardText = idea.brief || idea.explanation;
-    if (cardText) article.appendChild(el("p", "idea-card-text", cardText));
+    // The card shows the FULL structured brief (five labelled rows,
+    // same as the idea's own page) whenever any part exists. With
+    // no parts at all it falls back to the flat brief paragraph —
+    // the server already falls back to the explanation excerpt when
+    // a brief is missing, and we fall back once more here for older
+    // cached feeds.
+    var partsBlock = briefPartsEl(idea.briefParts);
+    if (partsBlock) {
+      article.appendChild(partsBlock);
+    } else {
+      var cardText = idea.brief || idea.explanation;
+      if (cardText) article.appendChild(el("p", "idea-card-text", cardText));
+    }
 
     if (status === "Completed") {
       var live = safeUrl(idea.liveUrl);

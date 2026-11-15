@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <a class="skip-link" href="#submit">Skip to submission form</a>
+  <a class="skip-link" href="#home">Skip to content</a>
 
   <!-- ============ NAVIGATION ============ -->
   <header class="site-header" id="top">
@@ -43,7 +43,7 @@
         <li><a class="nav-link" href="how-it-works.html">How It Works</a></li>
         <li><a class="nav-link" href="faq.html">FAQ</a></li>
         <li><a class="nav-link" href="about.html">About</a></li>
-        <li><a class="btn btn-primary nav-cta" href="#submit">Submit Idea</a></li>
+        <li><a class="btn btn-primary nav-cta" href="submit.html">Submit Idea</a></li>
       </ul>
     </nav>
   </header>
@@ -62,7 +62,7 @@
           <h1>Have an Idea?<br /><span class="gradient-text">Let's Build It!</span></h1>
           <p class="hero-sub">Have an idea for a website, mobile app, AI tool, or any software application? Share it with us! We'll review the submissions and explore the possibility of turning selected ideas into real working projects.</p>
           <div class="hero-actions">
-            <a href="#submit" class="btn btn-primary btn-lg">Submit Your Idea <span aria-hidden="true">→</span></a>
+            <a href="submit.html" class="btn btn-primary btn-lg">Submit Your Idea <span aria-hidden="true">→</span></a>
             <a href="ideas.html" class="btn btn-ghost btn-lg">See the Ideas Wall</a>
           </div>
           <p class="hero-note"><span aria-hidden="true">⏱</span> It takes only 2–3 minutes to share your idea.</p>
@@ -157,7 +157,7 @@
           <article class="card card-cta reveal">
             <h3>Not sure where yours fits?</h3>
             <p>That's completely fine. Just describe it in your own words.</p>
-            <a href="#submit" class="btn btn-primary">Submit Your Idea</a>
+            <a href="submit.html" class="btn btn-primary">Submit Your Idea</a>
           </article>
         </div>
       </div>
@@ -190,230 +190,15 @@
       </div>
     </section>
 
-    <!-- ============ SUBMIT ============ -->
-    <section class="section section-alt" id="submit" aria-labelledby="submit-heading">
-      <div class="container">
-        <div class="section-head reveal">
+    <!-- ============ SUBMIT (teaser — full page: submit.html) ============ -->
+    <section class="section section-alt" aria-labelledby="submit-teaser-heading">
+      <div class="container collab-box reveal">
+        <div>
           <span class="eyebrow">Submit</span>
-          <h2 id="submit-heading">Let's Hear <span class="gradient-text">Your Idea!</span></h2>
-          <p class="section-sub">Have something interesting in mind? Share your idea using the form below. Explain what you imagine, what problem it solves, and how it could help people.</p>
+          <h2 id="submit-teaser-heading">Let's Hear <span class="gradient-text">Your Idea!</span></h2>
+          <p>Have something interesting in mind? Share it on the Submit Idea page — explain what you imagine, what problem it solves, and how it could help people. It takes only 2–3 minutes.</p>
         </div>
-
-        <div class="form-shell reveal">
-          <!-- ===== Custom submission form (posts to Google Sheets via Apps Script — see js/config.js) ===== -->
-          <form id="ideaForm" novalidate>
-            <!-- Progress indicator -->
-            <div class="form-progress" aria-live="polite">
-              <div class="form-progress-head">
-                <span class="form-progress-title">Your progress</span>
-                <span class="form-progress-text" id="formProgressText">0 of 8 required fields completed</span>
-              </div>
-              <div class="form-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="formProgressBarWrap" aria-label="Form completion progress">
-                <div class="form-progress-fill" id="formProgressFill"></div>
-              </div>
-            </div>
-
-            <p class="form-required-note">Fields marked <span class="req" aria-hidden="true">*</span> are required.</p>
-
-            <!-- Section 1: Personal Information -->
-            <fieldset class="form-section">
-              <legend><span class="form-section-num" aria-hidden="true">1</span> Personal Information</legend>
-
-              <div class="field">
-                <label for="fullName">Full Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="fullName" name="fullName" placeholder="e.g. Priya Sharma" autocomplete="name" required aria-describedby="err-fullName" />
-                <p class="field-error" id="err-fullName" role="alert" hidden></p>
-              </div>
-
-              <div class="field-row">
-                <div class="field">
-                  <label for="usn">USN <span class="req" aria-hidden="true">*</span></label>
-                  <input type="text" id="usn" name="usn" placeholder="e.g. 1DS23CS001" autocomplete="off" required aria-describedby="err-usn" />
-                  <p class="field-error" id="err-usn" role="alert" hidden></p>
-                </div>
-                <div class="field">
-                  <label for="email">Email Address <span class="req" aria-hidden="true">*</span></label>
-                  <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required aria-describedby="err-email" />
-                  <p class="field-error" id="err-email" role="alert" hidden></p>
-                </div>
-              </div>
-            </fieldset>
-
-            <!-- Section 2: Project Overview -->
-            <fieldset class="form-section">
-              <legend><span class="form-section-num" aria-hidden="true">2</span> Project Overview</legend>
-
-              <div class="field">
-                <label for="ideaName">Project Idea / Application Name <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="ideaName" name="ideaName" placeholder="Give your idea a name" required aria-describedby="err-ideaName" />
-                <p class="field-error" id="err-ideaName" role="alert" hidden></p>
-              </div>
-
-              <div class="field">
-                <span class="field-label" id="appTypeLabel">What type of application do you want to build? <span class="req" aria-hidden="true">*</span></span>
-                <div class="select-cards" role="radiogroup" aria-labelledby="appTypeLabel" aria-describedby="err-appType">
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="Web Application" />
-                    <span class="select-card-icon" aria-hidden="true">🌐</span>
-                    <span class="select-card-text">Web Application</span>
-                  </label>
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="Mobile Application (Android / iOS)" />
-                    <span class="select-card-icon" aria-hidden="true">📱</span>
-                    <span class="select-card-text">Mobile Application (Android / iOS)</span>
-                  </label>
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="Desktop Application" />
-                    <span class="select-card-icon" aria-hidden="true">💻</span>
-                    <span class="select-card-text">Desktop Application</span>
-                  </label>
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="AI-powered Application" />
-                    <span class="select-card-icon" aria-hidden="true">🤖</span>
-                    <span class="select-card-text">AI-powered Application</span>
-                  </label>
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="Other software project" />
-                    <span class="select-card-icon" aria-hidden="true">🧩</span>
-                    <span class="select-card-text">Other software project</span>
-                  </label>
-                  <label class="select-card">
-                    <input type="radio" name="appType" value="Not sure yet" />
-                    <span class="select-card-icon" aria-hidden="true">❓</span>
-                    <span class="select-card-text">Not sure yet</span>
-                  </label>
-                </div>
-                <p class="field-error" id="err-appType" role="alert" hidden></p>
-              </div>
-            </fieldset>
-
-            <!-- Section 3: Idea Description -->
-            <fieldset class="form-section">
-              <legend><span class="form-section-num" aria-hidden="true">3</span> Idea Description</legend>
-
-              <div class="field">
-                <label for="ideaExplain">Explain your idea in detail <span class="req" aria-hidden="true">*</span></label>
-                <textarea id="ideaExplain" name="ideaExplain" rows="4" maxlength="1200" data-counter placeholder="Describe what you imagine — what it does, how it works, what it looks like…" required aria-describedby="err-ideaExplain"></textarea>
-                <div class="field-meta"><p class="field-error" id="err-ideaExplain" role="alert" hidden></p><span class="char-count" data-count-for="ideaExplain" aria-hidden="true">0 / 1200</span></div>
-              </div>
-
-              <div class="field">
-                <label for="problem">What problem does your idea solve? <span class="req" aria-hidden="true">*</span></label>
-                <textarea id="problem" name="problem" rows="3" maxlength="1000" data-counter placeholder="What difficulty or frustration does your idea remove?" required aria-describedby="err-problem"></textarea>
-                <div class="field-meta"><p class="field-error" id="err-problem" role="alert" hidden></p><span class="char-count" data-count-for="problem" aria-hidden="true">0 / 1000</span></div>
-              </div>
-
-              <div class="field">
-                <label for="beneficiaries">Who would benefit from this application? <span class="optional">(optional)</span></label>
-                <input type="text" id="beneficiaries" name="beneficiaries" placeholder="e.g. Students, shopkeepers, farmers…" />
-              </div>
-
-              <div class="field">
-                <label for="features">What features would you like to see in this application? <span class="optional">(optional)</span></label>
-                <textarea id="features" name="features" rows="3" maxlength="1000" data-counter placeholder="List the features you imagine — one per line is fine"></textarea>
-                <div class="field-meta"><span></span><span class="char-count" data-count-for="features" aria-hidden="true">0 / 1000</span></div>
-              </div>
-            </fieldset>
-
-            <!-- Section 4: AI and Collaboration -->
-            <fieldset class="form-section">
-              <legend><span class="form-section-num" aria-hidden="true">4</span> AI and Collaboration</legend>
-
-              <div class="field">
-                <span class="field-label" id="aiLabel">Does your idea involve Artificial Intelligence (AI)?</span>
-                <div class="choice-cards choice-cards-4" role="radiogroup" aria-labelledby="aiLabel">
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="aiInvolved" value="Yes" />
-                    <span class="select-card-icon" aria-hidden="true">✅</span>
-                    <span class="select-card-text">Yes</span>
-                  </label>
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="aiInvolved" value="No" />
-                    <span class="select-card-icon" aria-hidden="true">🚫</span>
-                    <span class="select-card-text">No</span>
-                  </label>
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="aiInvolved" value="Maybe" />
-                    <span class="select-card-icon" aria-hidden="true">🤔</span>
-                    <span class="select-card-text">Maybe</span>
-                  </label>
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="aiInvolved" value="Not Sure" />
-                    <span class="select-card-icon" aria-hidden="true">❓</span>
-                    <span class="select-card-text">Not Sure</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="field">
-                <span class="field-label" id="collabLabel">Are you interested in collaborating on this project?</span>
-                <div class="choice-cards choice-cards-3" role="radiogroup" aria-labelledby="collabLabel">
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="collaborate" value="Yes" />
-                    <span class="select-card-icon" aria-hidden="true">🤝</span>
-                    <span class="select-card-text">Yes</span>
-                  </label>
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="collaborate" value="No" />
-                    <span class="select-card-icon" aria-hidden="true">🙅</span>
-                    <span class="select-card-text">No</span>
-                  </label>
-                  <label class="select-card select-card-sm">
-                    <input type="radio" name="collaborate" value="Maybe" />
-                    <span class="select-card-icon" aria-hidden="true">🤔</span>
-                    <span class="select-card-text">Maybe</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="comments">Any additional suggestions or comments? <span class="optional">(optional)</span></label>
-                <textarea id="comments" name="comments" rows="3" maxlength="600" data-counter placeholder="Anything else you'd like us to know"></textarea>
-                <div class="field-meta"><span></span><span class="char-count" data-count-for="comments" aria-hidden="true">0 / 600</span></div>
-              </div>
-            </fieldset>
-
-            <div class="field consent-field">
-              <span class="field-label" id="consentLabel">Can we show your idea on the public <a href="ideas.html">Ideas Wall</a>? <span class="req" aria-hidden="true">*</span></span>
-              <p class="consent-note">Only your name, your idea and its progress status would be shown — never your USN, email or anything else. The team still approves every idea before it appears on the wall.</p>
-              <div class="choice-cards choice-cards-2" role="radiogroup" aria-labelledby="consentLabel" aria-describedby="err-consent">
-                <label class="select-card">
-                  <input type="radio" name="consentPublic" value="Yes" />
-                  <span class="select-card-icon" aria-hidden="true">✅</span>
-                  <span class="select-card-text">I Accept</span>
-                </label>
-                <label class="select-card">
-                  <input type="radio" name="consentPublic" value="No" />
-                  <span class="select-card-icon" aria-hidden="true">🔒</span>
-                  <span class="select-card-text">I Don't Accept</span>
-                </label>
-              </div>
-              <p class="field-error" id="err-consent" role="alert" hidden></p>
-            </div>
-
-            <div class="form-error-banner" id="formError" role="alert" hidden>
-              <strong>Your idea couldn't be submitted.</strong>
-              <span id="formErrorText">Please check your connection and try again.</span>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg form-submit" id="submitBtn">
-              <span class="btn-spinner" id="submitSpinner" aria-hidden="true" hidden></span>
-              <span id="submitBtnText">Submit Your Idea</span>
-            </button>
-            <p class="form-privacy">Your answers go to the Project Ideas team for review. It takes only 2–3 minutes.</p>
-          </form>
-
-          <!-- ===== Success confirmation (shown after a successful submission) ===== -->
-          <div class="form-success" id="formSuccess" hidden tabindex="-1">
-            <div class="success-check" aria-hidden="true">
-              <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24" fill="none"/><path fill="none" d="M14 27l8 8 16-17"/></svg>
-            </div>
-            <h3>Idea submitted — thank you!</h3>
-            <p>Your idea <strong id="successIdeaName"></strong> has been received. We'll review it along with the other submissions, and selected ideas may move towards development.</p>
-            <p class="form-thanks">Thank you for taking the time to share your idea!</p>
-            <button type="button" class="btn btn-ghost" id="submitAnother">Submit Another Idea</button>
-          </div>
-        </div>
+        <a href="submit.html" class="btn btn-primary btn-lg">Submit Your Idea</a>
       </div>
     </section>
 
@@ -425,7 +210,7 @@
           <h2 id="collab-heading">Want to Build <span class="gradient-text">Something Together?</span></h2>
           <p>Have an interest in development, design, AI, or problem-solving? You can also express your interest in collaborating on ideas. Just mention it in the submission form — collaboration interest can be indicated right there.</p>
         </div>
-        <a href="#submit" class="btn btn-primary btn-lg">Share Your Idea</a>
+        <a href="submit.html" class="btn btn-primary btn-lg">Share Your Idea</a>
       </div>
     </section>
 
@@ -460,7 +245,7 @@
           <li><a href="how-it-works.html">How It Works</a></li>
           <li><a href="faq.html">FAQ</a></li>
           <li><a href="about.html">About</a></li>
-          <li><a href="#submit">Submit Idea</a></li>
+          <li><a href="submit.html">Submit Idea</a></li>
         </ul>
       </nav>
     </div>
@@ -474,7 +259,6 @@
 
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/form.js"></script>
   <script src="js/chat.js"></script>
 </body>
 </html>

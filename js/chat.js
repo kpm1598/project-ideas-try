@@ -21,10 +21,9 @@
   var MAX_LEN = 500;
   var HISTORY_TURNS = 6; // messages of context sent with each question
 
-  var onHomePage = /(^|\/)index\.html$/.test(window.location.pathname) ||
-    /(^|\/)$/.test(window.location.pathname);
+  var onSubmitPage = /(^|\/)submit\.html$/.test(window.location.pathname);
   var FAQ_URL = "faq.html";
-  var FORM_URL = onHomePage ? "#submit" : "index.html#submit";
+  var FORM_URL = onSubmitPage ? "#submit" : "submit.html";
 
   var history = []; // {role: "user"|"assistant", content: string}
   var busy = false;

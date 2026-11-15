@@ -6,10 +6,11 @@
    PRIVACY: the detail feed is whitelisted on the server with the
    same rules as the Ideas Wall — a row is served only when the
    student consented AND the owner approved it, and it contains only
-   the public fields (id, name, idea, brief, full explanation,
-   status, and Completed-only links). Everything is rendered with
-   textContent (never innerHTML), exactly like js/ideas.js, so a
-   submission can never inject markup into the page.
+   the public fields (id, name, idea, brief, briefParts — the five
+   structured AI-brief parts — full explanation, status, and
+   Completed-only links). Everything is rendered with textContent
+   (never innerHTML), exactly like js/ideas.js, so a submission can
+   never inject markup into the page.
    ===================================================================== */
 (function () {
   "use strict";
@@ -27,6 +28,15 @@
   var byEl = document.getElementById("ideaBy");
   var briefBlock = document.getElementById("ideaBriefBlock");
   var briefEl = document.getElementById("ideaBrief");
+  var partsWrap = document.getElementById("ideaBriefParts");
+  // The five structured brief parts: [feed key, row element, text element].
+  var partEls = [
+    ["problem", document.getElementById("ideaBriefRowProblem"), document.getElementById("ideaBriefProblem")],
+    ["solution", document.getElementById("ideaBriefRowSolution"), document.getElementById("ideaBriefSolution")],
+    ["build", document.getElementById("ideaBriefRowBuild"), document.getElementById("ideaBriefBuild")],
+    ["tech", document.getElementById("ideaBriefRowTech"), document.getElementById("ideaBriefTech")],
+    ["audience", document.getElementById("ideaBriefRowAudience"), document.getElementById("ideaBriefAudience")]
+  ];
 
   var actionsEl = document.getElementById("ideaActions");
 
@@ -78,7 +88,25 @@
     byEl.textContent = idea.name ? "by " + idea.name : "";
     byEl.hidden = !idea.name;
 
-    if (idea.brief) {
+    // Structured brief first: one labelled row per part that
+    // exists (same .brief-part rows the wall cards use). When no
+    // part exists, fall back to the flat brief paragraph; when
+    // there is neither, the whole block stays hidden.
+    var parts = idea.briefParts || {};
+    var shownParts = 0;
+    partEls.forEach(function (def) {
+      var v = typeof parts[def[0]] === "string" ? parts[def[0]].trim() : "";
+      if (def[2]) def[2].textContent = v;
+      if (def[1]) def[1].hidden = !v;
+      if (v) shownParts++;
+    });
+    if (shownParts > 0) {
+      if (partsWrap) partsWrap.hidden = false;
+      briefEl.hidden = true;
+      briefBlock.hidden = false;
+    } else if (idea.brief) {
+      if (partsWrap) partsWrap.hidden = true;
+      briefEl.hidden = false;
       briefEl.textContent = idea.brief;
       briefBlock.hidden = false;
     } else {

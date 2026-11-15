@@ -23,7 +23,7 @@
 
   var onHomePage = /(^|\/)index\.html$/.test(window.location.pathname) ||
     /(^|\/)$/.test(window.location.pathname);
-  var FAQ_URL = onHomePage ? "#faqs" : "index.html#faqs";
+  var FAQ_URL = "faq.html";
   var FORM_URL = onHomePage ? "#submit" : "index.html#submit";
 
   var history = []; // {role: "user"|"assistant", content: string}

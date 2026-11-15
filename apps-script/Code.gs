@@ -12,6 +12,13 @@
  * Who has access: Anyone → Deploy → copy the Web App URL into
  * js/config.js on the website.
  *
+ * v6: every submission also gets a Public ID (PI-0001, PI-0002, …)
+ * and a short AI-written brief (the "AI Brief" column) used on the
+ * Ideas Wall and on each idea's own page (?feed=idea&id=PI-0001).
+ * The sheet menu item "Generate AI briefs + IDs for existing rows"
+ * backfills both for older submissions — running it from the editor
+ * is also what triggers Google's permission prompt for the AI calls.
+ *
  * AI CHAT (v5): the website's help chatbot posts action=chat here.
  * It calls the Groq AI API (model openai/gpt-oss-20b). The API key
  * is read from Script Properties — Project Settings → Script
@@ -80,7 +87,9 @@ var HEADERS = [
   "Status",
   "Live Project URL",
   "Repo URL",
-  "Visible on Website"
+  "Visible on Website",
+  "AI Brief",
+  "Public ID"
 ];
 
 function getSheet_() {
@@ -173,6 +182,12 @@ function doPost(e) {
       // Mirror a short version into the private Overview tab. Wrapped
       // separately: the Overview must NEVER break a real submission.
       try { appendOverviewRow_(newRow); } catch (ovErr) { /* ignore */ }
+      // v6: give the new row its Public ID and an AI-written brief
+      // for the Ideas Wall. Also wrapped separately: if the AI is
+      // unreachable or unconfigured, the row simply keeps an empty
+      // brief (the wall falls back to the text excerpt) and the
+      // submission still succeeds exactly as before.
+      try { fillPublicIdAndBrief_(sheet, sheet.getLastRow()); } catch (aiErr) { /* ignore */ }
     } finally {
       lock.releaseLock();
     }
@@ -193,6 +208,7 @@ function onOpen() {
     SpreadsheetApp.getUi()
       .createMenu("Project Ideas")
       .addItem("Rebuild Overview tab", "rebuildOverview")
+      .addItem("Generate AI briefs + IDs for existing rows", "backfillBriefsAndIds")
       .addToUi();
   } catch (err) { /* not bound to a sheet — menu just doesn't appear */ }
 }
@@ -210,6 +226,8 @@ function rebuildOverview() {
  * GET handler.
  * - No parameters: simple health check (open the Web App URL to test).
  * - ?feed=ideas: the public Ideas Wall feed (see ideasFeed_ below).
+ * - ?feed=idea&id=PI-0001: one public idea's detail feed, for the
+ *   idea's own page (see ideaDetailFeed_ below). Same privacy rules.
  * - ?action=rebuild-overview: rebuilds the private Overview tab from
  *   the main tab and reports how many rows it summarised. It exposes
  *   NO submission data — it only reorganises the owner's own sheet.
@@ -217,6 +235,9 @@ function rebuildOverview() {
 function doGet(e) {
   if (e && e.parameter && e.parameter.feed === "ideas") {
     return ideasFeed_();
+  }
+  if (e && e.parameter && e.parameter.feed === "idea") {
+    return ideaDetailFeed_(e.parameter.id);
   }
   if (e && e.parameter && e.parameter.action === "rebuild-overview") {
     try {
@@ -235,16 +256,18 @@ function doGet(e) {
  * PRIVACY CONTRACT — this is the ONLY data that ever leaves the sheet:
  * a row is included ONLY when the student consented ("Public Consent"
  * = Yes) AND the owner approved it ("Visible on Website" = Yes).
- * Each idea exposes ONLY: student name, idea name, a short excerpt of
- * the explanation, status, and — for Completed projects only — the
- * live project URL and repo URL. USN, email and every other answer
- * NEVER appear here. Never "publish" the sheet itself to the web.
+ * Each idea exposes ONLY: its Public ID, student name, idea name, a
+ * short brief (the AI brief when one exists, else a short excerpt of
+ * the explanation), the excerpt itself, status, and — for Completed
+ * projects only — the live project URL and repo URL. USN, email, the
+ * internal submission ID and every other answer NEVER appear here.
+ * Never "publish" the sheet itself to the web.
  */
 function ideasFeed_() {
   try {
     var sheet = getSheet_();
     var values = sheet.getDataRange().getValues();
-    var C = { name: 2, idea: 5, explain: 7, consent: 15, status: 16, live: 17, repo: 18, visible: 19 };
+    var C = { name: 2, idea: 5, explain: 7, consent: 15, status: 16, live: 17, repo: 18, visible: 19, brief: 20, publicId: 21 };
     var STATUSES = ["Submitted", "In Progress", "Completed"];
     var ideas = [];
     for (var r = 1; r < values.length; r++) {
@@ -257,10 +280,13 @@ function ideasFeed_() {
       if (STATUSES.indexOf(status) === -1) status = "Submitted";
       var explain = String(row[C.explain] || "").replace(/\s+/g, " ").trim();
       if (explain.length > 200) explain = explain.slice(0, 197).trim() + "…";
+      var brief = String(row[C.brief] || "").replace(/\s+/g, " ").trim();
       var done = status === "Completed";
       ideas.push({
+        id: String(row[C.publicId] || "").trim(),
         name: String(row[C.name] || "").trim(),
         idea: ideaName,
+        brief: brief || explain,
         explanation: explain,
         status: status,
         liveUrl: done ? String(row[C.live] || "").trim() : "",
@@ -272,6 +298,195 @@ function ideasFeed_() {
   } catch (err) {
     return json_({ result: "error", error: String(err) });
   }
+}
+
+/**
+ * Detail feed for ONE public idea (?feed=idea&id=PI-0001), used by
+ * the idea's own page (idea.html). Same privacy contract as the wall
+ * feed: the row must be consented AND owner-approved, and only the
+ * public fields leave the sheet — except that here the explanation
+ * is returned IN FULL (it is the idea's own page). An unknown id and
+ * a non-public id are indistinguishable: both answer
+ * {"result":"error","error":"Idea not found."}.
+ */
+function ideaDetailFeed_(idParam) {
+  try {
+    var wanted = String(idParam || "").trim().toLowerCase();
+    if (!wanted) return json_({ result: "error", error: "Idea not found." });
+    var sheet = getSheet_();
+    var values = sheet.getDataRange().getValues();
+    var C = { name: 2, idea: 5, explain: 7, consent: 15, status: 16, live: 17, repo: 18, visible: 19, brief: 20, publicId: 21 };
+    var STATUSES = ["Submitted", "In Progress", "Completed"];
+    for (var r = 1; r < values.length; r++) {
+      var row = values[r];
+      if (String(row[C.publicId] || "").trim().toLowerCase() !== wanted) continue;
+      // The id exists — but if the row is not public, answer exactly
+      // as if it did not exist (never confirm a private submission).
+      if (!truthy_(row[C.visible])) break;
+      if (String(row[C.consent] || "").trim().toLowerCase() !== "yes") break;
+      var status = String(row[C.status] || "").trim();
+      if (STATUSES.indexOf(status) === -1) status = "Submitted";
+      var done = status === "Completed";
+      var full = String(row[C.explain] || "").trim();
+      var brief = String(row[C.brief] || "").replace(/\s+/g, " ").trim();
+      if (!brief) {
+        brief = full.replace(/\s+/g, " ").trim();
+        if (brief.length > 200) brief = brief.slice(0, 197).trim() + "…";
+      }
+      return json_({ result: "ok", idea: {
+        id: String(row[C.publicId] || "").trim(),
+        name: String(row[C.name] || "").trim(),
+        idea: String(row[C.idea] || "").trim(),
+        brief: brief,
+        explanation: full,
+        status: status,
+        liveUrl: done ? String(row[C.live] || "").trim() : "",
+        repoUrl: done ? String(row[C.repo] || "").trim() : ""
+      }});
+    }
+    return json_({ result: "error", error: "Idea not found." });
+  } catch (err) {
+    return json_({ result: "error", error: String(err) });
+  }
+}
+
+// ---------- v6: Public IDs + AI briefs ----------
+//
+// Public ID: a short stable code per submission (PI-0001, PI-0002, …)
+// shown on the wall and used in each idea's page URL. It is assigned
+// in submission order, continuing from the highest ID already in the
+// sheet, and never changes once set. It is NOT the internal
+// submission ID (that stays private, for duplicate protection only).
+//
+// AI Brief: 2–3 short plain-language lines written by the same Groq
+// model as the chat, stored in the "AI Brief" column. The wall shows
+// the brief; when a brief is missing the feeds fall back to the plain
+// text excerpt, so the site works even with the AI unconfigured.
+
+var AI_BRIEF_COL = 20;  // 0-based index of "AI Brief" in HEADERS
+var PUBLIC_ID_COL = 21; // 0-based index of "Public ID" in HEADERS
+
+function publicIdNumber_(v) {
+  var m = /^PI-(\d+)$/i.exec(String(v == null ? "" : v).trim());
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+function formatPublicId_(n) {
+  var s = String(n);
+  while (s.length < 4) s = "0" + s;
+  return "PI-" + s;
+}
+
+// Highest PI number currently in the sheet (0 when none).
+function maxPublicIdNumber_(values) {
+  var max = 0;
+  for (var r = 1; r < values.length; r++) {
+    var n = publicIdNumber_(values[r][PUBLIC_ID_COL]);
+    if (n > max) max = n;
+  }
+  return max;
+}
+
+// Fills the Public ID and AI Brief cells of one sheet row (1-based
+// row number) when they are empty. Used right after a submission is
+// appended; the caller wraps it so a failure can never break the
+// submission itself.
+function fillPublicIdAndBrief_(sheet, rowNum) {
+  var values = sheet.getDataRange().getValues();
+  var row = values[rowNum - 1];
+  if (!row) return;
+  if (!String(row[PUBLIC_ID_COL] || "").trim()) {
+    var id = formatPublicId_(maxPublicIdNumber_(values) + 1);
+    sheet.getRange(rowNum, PUBLIC_ID_COL + 1).setValue(id);
+    row[PUBLIC_ID_COL] = id;
+  }
+  if (!String(row[AI_BRIEF_COL] || "").trim()) {
+    var brief = generateBrief_(row);
+    if (brief) sheet.getRange(rowNum, AI_BRIEF_COL + 1).setValue(brief);
+  }
+}
+
+// Asks Groq for the brief of one submission row. Returns "" on ANY
+// failure (no key, network error, bad reply) — callers treat an
+// empty brief as "use the excerpt instead", never as an error.
+function generateBrief_(row) {
+  try {
+    var key = String(PropertiesService.getScriptProperties().getProperty("GROQ_API_KEY") || "").trim();
+    if (!key) return "";
+    var facts = [
+      "Idea name: " + String(row[5] || "").trim(),
+      "Type: " + String(row[6] || "").trim(),
+      "Explanation: " + String(row[7] || "").trim(),
+      "Problem it solves: " + String(row[8] || "").trim(),
+      "Who benefits: " + String(row[9] || "").trim(),
+      "Features wanted: " + String(row[10] || "").trim()
+    ].join("\n");
+    var resp = UrlFetchApp.fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "post",
+      contentType: "application/json",
+      headers: { Authorization: "Bearer " + key },
+      payload: JSON.stringify({
+        model: CHAT_MODEL,
+        messages: [
+          { role: "system", content: "You write short factual briefs for a student project-ideas website. Reply with the brief only — no headings, no quotes, no preamble." },
+          { role: "user", content: "Write a brief of 2-3 short plain-language lines (at most 320 characters in total) about the student project idea below. Cover what the idea is, who it helps, and its key feature. Plain language, no hype, no marketing words.\n\n" + facts }
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+        reasoning_effort: "low"
+      }),
+      muteHttpExceptions: true
+    });
+    if (resp.getResponseCode() !== 200) return "";
+    var data = JSON.parse(resp.getContentText());
+    var text = "";
+    if (data && data.choices && data.choices[0] && data.choices[0].message) {
+      text = String(data.choices[0].message.content || "").replace(/\s+/g, " ").trim();
+    }
+    if (text.length > 320) text = text.slice(0, 317).trim() + "…";
+    return text;
+  } catch (err) {
+    return "";
+  }
+}
+
+/**
+ * Menu action (also safe to run from the script editor): backfills
+ * the Public ID and AI Brief of every existing row that is missing
+ * them. Rows that already have both are skipped. Running this from
+ * the editor is also the simplest way to trigger Google's permission
+ * prompt for the AI calls (UrlFetchApp) — click Run, then Allow.
+ */
+function backfillBriefsAndIds() {
+  var n = backfillBriefsAndIds_();
+  try {
+    SpreadsheetApp.getUi().alert("AI briefs + IDs: " + n + " row(s) updated.");
+  } catch (err) { /* no UI (editor run) — the count is in the log */ }
+  return n;
+}
+
+function backfillBriefsAndIds_() {
+  var sheet = getSheet_();
+  var values = sheet.getDataRange().getValues();
+  var next = maxPublicIdNumber_(values) + 1;
+  var updated = 0;
+  for (var r = 1; r < values.length; r++) {
+    var row = values[r];
+    var hasId = !!String(row[PUBLIC_ID_COL] || "").trim();
+    var hasBrief = !!String(row[AI_BRIEF_COL] || "").trim();
+    if (hasId && hasBrief) continue;
+    if (!hasId) {
+      sheet.getRange(r + 1, PUBLIC_ID_COL + 1).setValue(formatPublicId_(next));
+      next++;
+    }
+    if (!hasBrief) {
+      var brief = generateBrief_(row);
+      if (brief) sheet.getRange(r + 1, AI_BRIEF_COL + 1).setValue(brief);
+    }
+    updated++;
+  }
+  Logger.log("Generate AI briefs + IDs: updated " + updated + " row(s).");
+  return updated;
 }
 
 // ---------- AI help chat (Groq) ----------
@@ -309,7 +524,7 @@ var CHAT_SYSTEM_PROMPT = [
   "- This chat does NOT save anything. If someone describes an idea here, warmly tell them to submit it through the form on the home page so it is actually recorded.",
   "- Never ask the visitor for personal information (no USN, email, phone or passwords), and never reveal anyone's USN or email — you are never given them.",
   "- If the question is about something else entirely (not this website, Kasim, his projects, or the listed ideas), politely say you can only help with Project Ideas, and suggest a question you could answer.",
-  "- If you do not know something from the information above, say so honestly and suggest checking the FAQ section on the home page or emailing Kasim."
+  "- If you do not know something from the information above, say so honestly and suggest checking the FAQ page or emailing Kasim."
 ].join("\n");
 
 // Reads the CURRENT public Ideas Wall from the sheet — the same

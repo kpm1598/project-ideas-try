@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idea — Project Ideas</title>
+  <meta name="description" content="One student idea from the Project Ideas wall — its AI brief, the full idea in the student's own words, and its progress status." />
+  <meta name="author" content="Project Ideas" />
+  <meta name="theme-color" content="#0B0B18" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Idea — Project Ideas" />
+  <meta property="og:description" content="A student idea from the Project Ideas wall, with its AI brief and full description." />
+  <meta property="og:site_name" content="Project Ideas" />
+  <meta name="twitter:card" content="summary" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📌</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#idea-detail">Skip to the idea</a>
+
+  <!-- ============ NAVIGATION ============ -->
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a href="index.html" class="logo" aria-label="Project Ideas — home">
+        <span class="logo-icon" aria-hidden="true">&lt;/&gt;</span>
+        <span class="logo-text">Project <span class="gradient-text">Ideas</span></span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-menu" id="navMenu">
+        <li><a class="nav-link" href="index.html">Home</a></li>
+        <li><a class="nav-link active" href="ideas.html">Ideas Wall</a></li>
+        <li><a class="nav-link" href="how-it-works.html">How It Works</a></li>
+        <li><a class="nav-link" href="faq.html">FAQ</a></li>
+        <li><a class="nav-link" href="about.html">About</a></li>
+        <li><a class="btn btn-primary nav-cta" href="index.html#submit">Submit Idea</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ============ IDEA DETAIL ============ -->
+    <section class="section wall-section" id="idea-detail">
+      <div class="container narrow">
+        <a class="back-link" href="ideas.html">← Back to Ideas Wall</a>
+
+        <div class="wall-state" id="ideaLoading" role="status">
+          <span class="btn-spinner wall-spinner" aria-hidden="true"></span>
+          <p>Loading this idea…</p>
+        </div>
+
+        <div class="wall-state" id="ideaNotFound" hidden>
+          <p class="wall-state-title">Idea not found</p>
+          <p>This idea doesn't exist, or it isn't public. Ideas appear here only after the student consents and the idea is approved for the wall.</p>
+          <a class="btn btn-primary" href="ideas.html">Browse the Ideas Wall</a>
+        </div>
+
+        <div class="wall-state" id="ideaError" hidden role="alert">
+          <p class="wall-state-title">This idea couldn't load</p>
+          <p id="ideaErrorText">Please check your connection and try again.</p>
+          <button type="button" class="btn btn-ghost" id="ideaRetry">Try Again</button>
+        </div>
+
+        <article class="idea-detail" id="ideaContent" hidden>
+          <div class="idea-card-head">
+            <h1 class="idea-detail-title" id="ideaTitle"></h1>
+            <span id="ideaStatusPill"></span>
+          </div>
+          <p class="idea-card-by" id="ideaBy"></p>
+
+          <div class="idea-brief" id="ideaBriefBlock">
+            <span class="idea-brief-label">AI brief</span>
+            <p id="ideaBrief"></p>
+          </div>
+
+          <h2 class="idea-subhead">The full idea, in their own words</h2>
+          <p class="idea-full" id="ideaFull"></p>
+
+          <div class="idea-card-actions" id="ideaActions"></div>
+        </article>
+
+        <p class="wall-note">Only a student's name, idea and progress status are ever shown here — contact details are never published.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="logo">
+          <span class="logo-icon" aria-hidden="true">&lt;/&gt;</span>
+          <span class="logo-text">Project <span class="gradient-text">Ideas</span></span>
+        </a>
+        <p>An initiative to collect interesting software ideas, review them, and explore turning selected submissions into real working projects.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="ideas.html">Ideas Wall</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="index.html#submit">Submit Idea</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="container footer-bottom">
+      <p>© <span id="year">2026</span> Project Ideas. All rights reserved.</p>
+      <p class="footer-tagline">Built with ideas, creativity and curiosity.</p>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/idea.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>

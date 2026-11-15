@@ -4,10 +4,12 @@
    (GET <APPS_SCRIPT_URL>?feed=ideas) and renders one card per idea.
 
    PRIVACY: the feed is whitelisted on the server — it only ever
-   contains name, idea, a short explanation excerpt, status and, for
-   Completed projects, the live + repo links. This file reads ONLY
-   those fields, and renders everything with textContent (never
-   innerHTML), so a submission can never inject markup into the page.
+   contains the idea's Public ID, name, idea, a short brief (the AI
+   brief when one exists, else a short explanation excerpt), status
+   and, for Completed projects, the live + repo links. This file
+   reads ONLY those fields, and renders everything with textContent
+   (never innerHTML), so a submission can never inject markup into
+   the page. Each card links to the idea's own page (idea.html).
    ===================================================================== */
 (function () {
   "use strict";
@@ -66,7 +68,11 @@
     article.appendChild(head);
 
     if (idea.name) article.appendChild(el("p", "idea-card-by", "by " + idea.name));
-    if (idea.explanation) article.appendChild(el("p", "idea-card-text", idea.explanation));
+    // The card shows the AI brief; the server already falls back to
+    // the explanation excerpt when a brief is missing, and we fall
+    // back once more here for older cached feeds.
+    var cardText = idea.brief || idea.explanation;
+    if (cardText) article.appendChild(el("p", "idea-card-text", cardText));
 
     if (status === "Completed") {
       var live = safeUrl(idea.liveUrl);
@@ -85,6 +91,12 @@
         }
         article.appendChild(actions);
       }
+    }
+
+    if (idea.id) {
+      var more = el("a", "idea-card-link", "View idea →");
+      more.href = "idea.html?id=" + encodeURIComponent(idea.id);
+      article.appendChild(more);
     }
     return article;
   }

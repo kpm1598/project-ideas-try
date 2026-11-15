@@ -16,7 +16,7 @@
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="Project Ideas — Have an Idea? Let's Build It!" />
   <meta name="twitter:description" content="Share your software idea in 2–3 minutes. Selected ideas may move towards development." />
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -28,7 +28,7 @@
   <!-- ============ NAVIGATION ============ -->
   <header class="site-header" id="top">
     <nav class="nav container" aria-label="Main navigation">
-      <a href="#home" class="logo" aria-label="Project Ideas — home">
+      <a href="index.html" class="logo" aria-label="Project Ideas — home">
         <span class="logo-icon" aria-hidden="true">&lt;/&gt;</span>
         <span class="logo-text">Project <span class="gradient-text">Ideas</span></span>
       </a>
@@ -38,12 +38,11 @@
       </button>
 
       <ul class="nav-menu" id="navMenu">
-        <li><a class="nav-link active" href="#home">Home</a></li>
-        <li><a class="nav-link" href="#about">About</a></li>
-        <li><a class="nav-link" href="#how-it-works">How It Works</a></li>
-        <li><a class="nav-link" href="#faqs">FAQs</a></li>
+        <li><a class="nav-link active" href="index.html" aria-current="page">Home</a></li>
         <li><a class="nav-link" href="ideas.html">Ideas Wall</a></li>
-        <li><a class="nav-link" href="about.html">Meet the Developer</a></li>
+        <li><a class="nav-link" href="how-it-works.html">How It Works</a></li>
+        <li><a class="nav-link" href="faq.html">FAQ</a></li>
+        <li><a class="nav-link" href="about.html">About</a></li>
         <li><a class="btn btn-primary nav-cta" href="#submit">Submit Idea</a></li>
       </ul>
     </nav>
@@ -179,30 +178,15 @@
       </div>
     </section>
 
-    <!-- ============ HOW IT WORKS ============ -->
-    <section class="section" id="how-it-works" aria-labelledby="how-heading">
-      <div class="container">
-        <div class="section-head reveal">
+    <!-- ============ HOW IT WORKS (teaser — full page: how-it-works.html) ============ -->
+    <section class="section" aria-labelledby="how-teaser-heading">
+      <div class="container collab-box reveal">
+        <div>
           <span class="eyebrow">How It Works</span>
-          <h2 id="how-heading">From Idea to App in <span class="gradient-text">Three Steps</span></h2>
+          <h2 id="how-teaser-heading">From Idea to App in <span class="gradient-text">Three Steps</span></h2>
+          <p>Share your idea, we review it, and selected ideas may move towards development as real working projects. See the three steps in detail on the How It Works page.</p>
         </div>
-        <ol class="steps">
-          <li class="step reveal">
-            <div class="step-number" aria-hidden="true">1</div>
-            <h3>Share Your Idea</h3>
-            <p>Tell us what you have in mind using the simple submission form — it takes only 2–3 minutes.</p>
-          </li>
-          <li class="step reveal">
-            <div class="step-number" aria-hidden="true">2</div>
-            <h3>We Review</h3>
-            <p>We go through the submitted ideas and look at what they solve and who they could help.</p>
-          </li>
-          <li class="step reveal">
-            <div class="step-number" aria-hidden="true">3</div>
-            <h3>Build &amp; Explore</h3>
-            <p>Selected ideas may move towards development and be explored as real working projects.</p>
-          </li>
-        </ol>
+        <a href="how-it-works.html" class="btn btn-ghost btn-lg">See How It Works</a>
       </div>
     </section>
 
@@ -445,39 +429,15 @@
       </div>
     </section>
 
-    <!-- ============ FAQ ============ -->
-    <section class="section section-alt" id="faqs" aria-labelledby="faq-heading">
-      <div class="container faq-wrap">
-        <div class="section-head reveal">
+    <!-- ============ FAQ (teaser — full page: faq.html) ============ -->
+    <section class="section section-alt" aria-labelledby="faq-teaser-heading">
+      <div class="container collab-box reveal">
+        <div>
           <span class="eyebrow">FAQs</span>
-          <h2 id="faq-heading">Frequently Asked <span class="gradient-text">Questions</span></h2>
+          <h2 id="faq-teaser-heading">Questions? <span class="gradient-text">Answered.</span></h2>
+          <p>Who can submit, whether you need technical knowledge, how ideas are picked — the answers are on the FAQ page.</p>
         </div>
-        <div class="faq-list reveal">
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Who can submit an idea?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>Anyone. Students and other interested people are all welcome — if you have an idea for a software application, you can share it here.</p></div>
-          </div>
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Do I need technical knowledge?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>No. You don't need to be a developer or have any technical knowledge. Just describe your idea in your own words — what it is, what problem it solves, and how it could help people.</p></div>
-          </div>
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Can I submit a simple or incomplete idea?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>Yes, absolutely. Simple and incomplete ideas are welcome. Share whatever you have in mind — even a rough thought is a valid starting point.</p></div>
-          </div>
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Will every idea be developed?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>Not every idea can be developed. All submissions are reviewed, and selected ideas may be explored for development into working projects.</p></div>
-          </div>
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Can I collaborate on selected projects?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>Yes. If you're interested in development, design, AI or problem-solving, you can express your interest in collaborating through the submission form.</p></div>
-          </div>
-          <div class="faq-item">
-            <h3><button class="faq-question" aria-expanded="false">Where can I submit my idea?<span class="faq-chevron" aria-hidden="true">▾</span></button></h3>
-            <div class="faq-answer" hidden><p>Right here on this page — use the <a href="#submit">submission form in the Submit section above</a>. It takes only 2–3 minutes.</p></div>
-          </div>
-        </div>
+        <a href="faq.html" class="btn btn-ghost btn-lg">Read the FAQs</a>
       </div>
     </section>
   </main>
@@ -486,7 +446,7 @@
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <a href="#home" class="logo">
+        <a href="index.html" class="logo">
           <span class="logo-icon" aria-hidden="true">&lt;/&gt;</span>
           <span class="logo-text">Project <span class="gradient-text">Ideas</span></span>
         </a>
@@ -495,12 +455,11 @@
       <nav class="footer-links" aria-label="Footer navigation">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#faqs">FAQs</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="ideas.html">Ideas Wall</a></li>
-          <li><a href="about.html">Meet the Developer</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="about.html">About</a></li>
           <li><a href="#submit">Submit Idea</a></li>
         </ul>
       </nav>

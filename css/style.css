@@ -258,6 +258,21 @@ a{color:inherit}
 .idea-card-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem}
 .btn-sm{padding:.55rem 1rem;font-size:.9rem;border-radius:.65rem}
 .wall-note{text-align:center;color:var(--muted);font-size:.88rem;margin-top:2.4rem}
+/* ===== v6: split pages, idea detail, AI briefs ===== */
+.page-section{padding-top:8.5rem}
+.center-actions{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin-top:2.8rem}
+.idea-card-link{color:var(--blue);font-weight:600;font-size:.93rem;margin-top:.35rem}
+.idea-card-link:hover{text-decoration:underline}
+.back-link{display:inline-block;color:var(--blue);font-weight:600;margin-bottom:1.5rem}
+.back-link:hover{text-decoration:underline}
+.idea-detail{background:var(--bg-2);border:1px solid rgba(255,255,255,.08);border-radius:1.1rem;padding:clamp(1.5rem,3.5vw,2.4rem)}
+.idea-detail-title{font-size:clamp(1.6rem,3.5vw,2.3rem);line-height:1.25}
+.idea-brief{background:var(--bg-3);border:1px solid rgba(130,87,255,.45);border-radius:.9rem;padding:1.1rem 1.25rem;margin:1.3rem 0 .4rem}
+.idea-brief-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B79CFF;margin-bottom:.45rem}
+.idea-brief p{color:var(--white);line-height:1.65}
+.idea-subhead{font-size:1.18rem;margin:1.6rem 0 .6rem}
+.idea-full{color:var(--muted);line-height:1.75;white-space:pre-wrap}
+
 /* ===== Form consent (v4) ===== */
 .consent-field{margin-top:1.1rem}
 .consent-note{color:var(--muted);font-size:.93rem;line-height:1.55;margin:.35rem 0 .8rem}

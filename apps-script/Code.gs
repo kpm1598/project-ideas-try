@@ -285,7 +285,9 @@ function doGet(e) {
 // text, and an empty cell stays empty (the site then shows no date).
 function submittedDate_(row) {
   var v = row[0];
-  if (v instanceof Date && !isNaN(v.getTime())) {
+  // (Object.prototype.toString, not instanceof — it recognises Date
+  // objects regardless of which script realm created them.)
+  if (Object.prototype.toString.call(v) === "[object Date]" && !isNaN(v.getTime())) {
     return Utilities.formatDate(v, Session.getScriptTimeZone(), "d MMM yyyy");
   }
   var s = String(v || "").trim();

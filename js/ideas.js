@@ -94,7 +94,7 @@
     }
 
     if (idea.id) {
-      var more = el("a", "idea-card-link", "View idea →");
+      var more = el("a", "btn btn-primary idea-view-btn", "View idea →");
       more.href = "idea.html?id=" + encodeURIComponent(idea.id);
       article.appendChild(more);
     }

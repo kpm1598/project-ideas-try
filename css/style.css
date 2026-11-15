@@ -261,17 +261,15 @@ a{color:inherit}
 /* ===== v6: split pages, idea detail, AI briefs ===== */
 .page-section{padding-top:8.5rem}
 .center-actions{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;margin-top:2.8rem}
-.idea-card-link{color:var(--blue);font-weight:600;font-size:.93rem;margin-top:.35rem}
-.idea-card-link:hover{text-decoration:underline}
-.back-link{display:inline-block;color:var(--blue);font-weight:600;margin-bottom:1.5rem}
-.back-link:hover{text-decoration:underline}
+.idea-view-btn{margin-top:.9rem;width:100%;justify-content:center}
+.back-btn{margin-bottom:1.5rem}
 .idea-detail{background:var(--bg-2);border:1px solid rgba(255,255,255,.08);border-radius:1.1rem;padding:clamp(1.5rem,3.5vw,2.4rem)}
 .idea-detail-title{font-size:clamp(1.6rem,3.5vw,2.3rem);line-height:1.25}
 .idea-brief{background:var(--bg-3);border:1px solid rgba(130,87,255,.45);border-radius:.9rem;padding:1.1rem 1.25rem;margin:1.3rem 0 .4rem}
 .idea-brief-label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#B79CFF;margin-bottom:.45rem}
 .idea-brief p{color:var(--white);line-height:1.65}
 .idea-subhead{font-size:1.18rem;margin:1.6rem 0 .6rem}
-.idea-full{color:var(--muted);line-height:1.75;white-space:pre-wrap}
+
 
 /* ===== Form consent (v4) ===== */
 .consent-field{margin-top:1.1rem}
@@ -317,12 +315,12 @@ a{color:inherit}
 .back-to-top{bottom:90px}
 .chat-panel{position:fixed;right:22px;bottom:90px;width:min(370px,calc(100vw - 24px));height:min(540px,calc(100vh - 115px));height:min(540px,calc(100dvh - 115px));background:var(--bg-2);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);z-index:97;display:flex;flex-direction:column;overflow:hidden}
 .chat-panel[hidden]{display:none}
-.chat-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;background:var(--bg-3);border-bottom:1px solid var(--border)}
+.chat-header{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;background:var(--bg-3);border-bottom:1px solid var(--border);flex-shrink:0}
 .chat-title{font-weight:700;font-size:1.02rem;line-height:1.3}
 .chat-subtitle{color:var(--muted);font-size:.8rem;line-height:1.3}
 .chat-close{background:none;border:none;color:var(--muted);font-size:1.6rem;line-height:1;cursor:pointer;padding:.1rem .4rem}
 .chat-close:hover{color:#fff}
-.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem}
+.chat-messages{flex:1;min-height:0;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.6rem}
 .chat-row{display:flex}
 .chat-row.user{justify-content:flex-end}
 .chat-bubble{max-width:82%;padding:.6rem .85rem;border-radius:16px;font-size:.92rem;line-height:1.5;white-space:pre-wrap;word-break:break-word}
@@ -331,16 +329,16 @@ a{color:inherit}
 .chat-bubble a{color:var(--blue);text-decoration:underline}
 .chat-row.user .chat-bubble a{color:#fff}
 .chat-typing .chat-bubble{color:var(--muted);font-style:italic}
-.chat-chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:.2rem 1rem .7rem}
+.chat-chips{display:flex;flex-wrap:wrap;gap:.45rem;padding:.2rem 1rem .7rem;flex-shrink:0;max-height:7.5rem;overflow-y:auto}
 .chat-chip{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:.35rem .8rem;font-size:.8rem;cursor:pointer;transition:.25s}
 .chat-chip:hover{border-color:var(--purple);color:#fff}
-.chat-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid var(--border);background:var(--bg-3)}
+.chat-form{display:flex;gap:.5rem;padding:.8rem 1rem;border-top:1px solid var(--border);background:var(--bg-3);flex-shrink:0}
 .chat-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:999px;color:#fff;padding:.6rem 1rem;font:inherit;font-size:.92rem;min-width:0}
 .chat-input:focus{outline:none;border-color:var(--purple)}
 .chat-input::placeholder{color:var(--muted)}
 .chat-send{background:var(--gradient);color:#fff;border:none;border-radius:999px;padding:.6rem 1.2rem;font-weight:600;cursor:pointer}
 .chat-send:disabled{opacity:.55;cursor:wait}
-.chat-note{padding:.55rem 1rem .8rem;color:var(--muted);font-size:.74rem;line-height:1.45;background:var(--bg-3)}
+.chat-note{padding:.55rem 1rem .8rem;color:var(--muted);font-size:.74rem;line-height:1.45;background:var(--bg-3);flex-shrink:0}
 @media (max-width:560px){
   /* Small screens: the panel is pinned between the header and the
      chat button, so it always fits the visible screen exactly —

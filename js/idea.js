@@ -27,7 +27,7 @@
   var byEl = document.getElementById("ideaBy");
   var briefBlock = document.getElementById("ideaBriefBlock");
   var briefEl = document.getElementById("ideaBrief");
-  var fullEl = document.getElementById("ideaFull");
+
   var actionsEl = document.getElementById("ideaActions");
 
   function endpoint() {
@@ -85,7 +85,7 @@
       briefBlock.hidden = true;
     }
 
-    fullEl.textContent = idea.explanation || "";
+
 
     actionsEl.textContent = "";
     if (status === "Completed") {

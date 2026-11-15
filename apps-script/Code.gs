@@ -544,7 +544,9 @@ function generateBriefParts_(row) {
  * the Public ID and structured brief of every existing row that is
  * missing them. A row needs brief (re)generation when ANY of its
  * five Brief * fields is empty; rows that have an ID and all five
- * parts are skipped. Running this from the editor is also the
+ * parts are skipped. Regeneration only ever FILLS empty cells —
+ * text already present (including Kasim's manual edits in the
+ * Brief columns) is never overwritten. Running this from the editor is also the
  * simplest way to trigger Google's permission prompt for the AI
  * calls (UrlFetchApp) — click Run, then Allow.
  */
@@ -575,7 +577,17 @@ function backfillBriefsAndIds_() {
     if (!partsComplete) {
       var parts = generateBriefParts_(row);
       if (parts) {
-        writeBriefParts_(sheet, r + 1, parts);
+        // Merge, never overwrite: any part already in the row (for
+        // example Kasim's own hand edits in the Brief columns) is
+        // kept exactly as-is; the AI text fills only the empty cells.
+        var existing = briefPartsFromRow_(row);
+        writeBriefParts_(sheet, r + 1, {
+          problem: existing.problem || parts.problem,
+          solution: existing.solution || parts.solution,
+          build: existing.build || parts.build,
+          tech: existing.tech || parts.tech,
+          audience: existing.audience || parts.audience
+        });
         changed = true;
       }
     }

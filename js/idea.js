@@ -85,11 +85,15 @@
     var pill = el("span", "status-pill " + STATUS_CLASS[status], status);
     pillEl.appendChild(pill);
 
-    byEl.textContent = idea.name ? "by " + idea.name : "";
-    byEl.hidden = !idea.name;
+    var byParts = [];
+    if (idea.name) byParts.push("by " + idea.name);
+    if (idea.date) byParts.push("Submitted on " + idea.date);
+    byEl.textContent = byParts.join(" · ");
+    byEl.hidden = !byParts.length;
 
     // Structured brief first: one labelled row per part that
-    // exists (same .brief-part rows the wall cards use). When no
+    // exists — the full structure lives here, on the idea's own
+    // page (the wall cards stay short). When no
     // part exists, fall back to the flat brief paragraph; when
     // there is neither, the whole block stays hidden.
     var parts = idea.briefParts || {};

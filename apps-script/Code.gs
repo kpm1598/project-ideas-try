@@ -269,13 +269,34 @@ function doGet(e) {
  * Each idea exposes ONLY: its Public ID, student name, idea name, a
  * short brief (the structured brief's Problem + Solution when they
  * exist, else a short excerpt of the explanation), the five brief
- * parts themselves ("briefParts", so the wall card can show the
- * full structured brief), the excerpt itself, status, and — for
+ * parts themselves ("briefParts" — the wall card stays short and
+ * shows only the flat brief; the full structure is presented on
+ * the idea's own page), the excerpt itself, status, the submission
+ * date ("date", e.g. "15 Nov 2026"), and — for
  * Completed projects only — the live project URL and repo URL.
  * USN, email, the internal submission ID and every other answer
  * NEVER appear here.
  * Never "publish" the sheet itself to the web.
  */
+// The submission's date as a short human string ("15 Nov 2026"),
+// read from the Timestamp column (index 0). Real submissions store
+// a Date object there; a stored string that parses as a date is
+// formatted the same way, anything else passes through as trimmed
+// text, and an empty cell stays empty (the site then shows no date).
+function submittedDate_(row) {
+  var v = row[0];
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    return Utilities.formatDate(v, Session.getScriptTimeZone(), "d MMM yyyy");
+  }
+  var s = String(v || "").trim();
+  if (!s) return "";
+  var d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    return Utilities.formatDate(d, Session.getScriptTimeZone(), "d MMM yyyy");
+  }
+  return s;
+}
+
 function ideasFeed_() {
   try {
     var sheet = getSheet_();
@@ -304,6 +325,7 @@ function ideasFeed_() {
         briefParts: parts,
         explanation: explain,
         status: status,
+        date: submittedDate_(row),
         liveUrl: done ? String(row[C.live] || "").trim() : "",
         repoUrl: done ? String(row[C.repo] || "").trim() : ""
       });
@@ -359,6 +381,7 @@ function ideaDetailFeed_(idParam) {
         briefParts: parts,
         explanation: full,
         status: status,
+        date: submittedDate_(row),
         liveUrl: done ? String(row[C.live] || "").trim() : "",
         repoUrl: done ? String(row[C.repo] || "").trim() : ""
       }});

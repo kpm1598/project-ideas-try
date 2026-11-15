@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AI Brief Control Panel</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: #0B0B18; color: #EDEDF5; }
+  header { padding: 16px 20px 10px; }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; color: #B8B8CC; font-size: 13px; line-height: 1.5; }
+  #list { padding: 6px 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: #14142A; border: 1px solid #26263F; border-radius: 14px; padding: 14px 16px 12px; }
+  .card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card-title { font-weight: 700; font-size: 16px; margin-right: 4px; }
+  .chip { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: #1D1D33; color: #B8B8CC; border: 1px solid #26263F; }
+  .chip.status { color: #fff; background: #8257FF; border-color: #8257FF; }
+  .card-by { color: #4B8BFF; font-size: 13px; font-weight: 600; margin: 3px 0 10px; }
+  label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #8257FF; margin: 10px 0 4px; }
+  textarea, input[type="text"] { width: 100%; background: #0B0B18; border: 1px solid #26263F; border-radius: 10px; color: #EDEDF5; padding: 8px 10px; font: inherit; font-size: 13.5px; line-height: 1.5; resize: vertical; }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: #8257FF; }
+  .actions { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+  button { border: none; border-radius: 999px; padding: 8px 18px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .55; cursor: wait; }
+  .btn-save { background: linear-gradient(135deg, #8257FF, #4B8BFF); color: #fff; }
+  .btn-regen { background: transparent; color: #B8B8CC; border: 1px solid #26263F; }
+  .btn-regen:hover { color: #fff; border-color: #8257FF; }
+  .msg { font-size: 12.5px; color: #B8B8CC; }
+  .msg.ok { color: #39E58C; }
+  .msg.err { color: #FF526F; }
+  #state { padding: 30px 20px; color: #B8B8CC; font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🎛 AI Brief Control Panel</h1>
+  <p>Every idea and its AI brief. Edit any part and press <b>Save</b> — changes go straight into the Sheet and appear on the website immediately. <b>Regenerate</b> asks the AI for a fresh brief for that one idea and saves it at once.</p>
+</header>
+<div id="state">Loading briefs…</div>
+<div id="list"></div>
+
+<script>
+  var FIELDS = [
+    ["problem", "Problem", "textarea"],
+    ["solution", "Solution", "textarea"],
+    ["build", "What we'll build", "textarea"],
+    ["tech", "Tech stack", "input"],
+    ["audience", "Built for", "input"]
+  ];
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function setMsg(card, text, kind) {
+    var m = card.querySelector(".msg");
+    m.textContent = text || "";
+    m.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function setBusy(card, busy) {
+    card.querySelectorAll("button").forEach(function (b) { b.disabled = busy; });
+  }
+
+  function collect(card) {
+    var parts = {};
+    FIELDS.forEach(function (f) {
+      parts[f[0]] = card.querySelector("[data-field='" + f[0] + "']").value;
+    });
+    return parts;
+  }
+
+  function fill(card, parts) {
+    FIELDS.forEach(function (f) {
+      card.querySelector("[data-field='" + f[0] + "']").value = (parts && parts[f[0]]) || "";
+    });
+  }
+
+  function card(item) {
+    var wrap = el("div", "card");
+    wrap.dataset.row = item.row;
+    wrap.dataset.id = item.id || "";
+
+    var head = el("div", "card-head");
+    head.appendChild(el("span", "card-title", item.idea));
+    head.appendChild(el("span", "chip status", item.status));
+    if (item.id) head.appendChild(el("span", "chip", item.id));
+    wrap.appendChild(head);
+    if (item.name) wrap.appendChild(el("p", "card-by", "by " + item.name));
+
+    FIELDS.forEach(function (f) {
+      wrap.appendChild(el("label", "", f[1]));
+      var input = f[2] === "textarea" ? document.createElement("textarea") : document.createElement("input");
+      if (f[2] === "textarea") input.rows = 2; else input.type = "text";
+      input.dataset.field = f[0];
+      input.value = (item.parts && item.parts[f[0]]) || "";
+      wrap.appendChild(input);
+    });
+
+    var actions = el("div", "actions");
+    var save = el("button", "btn-save", "Save brief");
+    var regen = el("button", "btn-regen", "↻ Regenerate with AI");
+    var msg = el("span", "msg", "");
+    actions.appendChild(save);
+    actions.appendChild(regen);
+    actions.appendChild(msg);
+    wrap.appendChild(actions);
+
+    save.addEventListener("click", function () {
+      setBusy(wrap, true);
+      setMsg(wrap, "Saving…");
+      google.script.run
+        .withSuccessHandler(function (res) {
+          setBusy(wrap, false);
+          if (res && res.result === "ok") setMsg(wrap, "Saved ✓ — live on the website now.", "ok");
+          else setMsg(wrap, (res && res.error) || "Save failed.", "err");
+        })
+        .withFailureHandler(function (err) {
+          setBusy(wrap, false);
+          setMsg(wrap, "Save failed: " + err.message, "err");
+        })
+        .briefControlSave(Number(wrap.dataset.row), wrap.dataset.id, collect(wrap));
+    });
+
+    regen.addEventListener("click", function () {
+      setBusy(wrap, true);
+      setMsg(wrap, "Asking the AI for a fresh brief…");
+      google.script.run
+        .withSuccessHandler(function (res) {
+          setBusy(wrap, false);
+          if (res && res.result === "ok") {
+            fill(wrap, res.parts);
+            setMsg(wrap, "Fresh AI brief saved ✓ — edit any part and Save if you want changes.", "ok");
+          } else {
+            setMsg(wrap, (res && res.error) || "Regeneration failed.", "err");
+          }
+        })
+        .withFailureHandler(function (err) {
+          setBusy(wrap, false);
+          setMsg(wrap, "Regeneration failed: " + err.message, "err");
+        })
+        .briefControlRegenerate(Number(wrap.dataset.row), wrap.dataset.id);
+    });
+
+    return wrap;
+  }
+
+  function load() {
+    google.script.run
+      .withSuccessHandler(function (res) {
+        var state = document.getElementById("state");
+        var list = document.getElementById("list");
+        if (!res || res.result !== "ok") {
+          state.textContent = "Could not load the briefs: " + ((res && res.error) || "unknown error");
+          return;
+        }
+        if (!res.items.length) {
+          state.textContent = "No submissions yet — briefs will appear here as ideas come in.";
+          return;
+        }
+        state.style.display = "none";
+        res.items.forEach(function (item) { list.appendChild(card(item)); });
+      })
+      .withFailureHandler(function (err) {
+        document.getElementById("state").textContent = "Could not load the briefs: " + err.message;
+      })
+      .briefControlList();
+  }
+
+  load();
+</script>
+</body>
+</html>

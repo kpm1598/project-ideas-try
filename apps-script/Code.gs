@@ -219,6 +219,7 @@ function onOpen() {
       .createMenu("Project Ideas")
       .addItem("Rebuild Overview tab", "rebuildOverview")
       .addItem("Generate AI briefs + IDs for existing rows", "backfillBriefsAndIds")
+      .addItem("AI Brief Control Panel", "openBriefControlPanel")
       .addToUi();
   } catch (err) { /* not bound to a sheet — menu just doesn't appear */ }
 }
@@ -620,6 +621,93 @@ function backfillBriefsAndIds_() {
   }
   Logger.log("Generate AI briefs + IDs: updated " + updated + " row(s).");
   return updated;
+}
+
+// ---------- AI Brief Control Panel ----------
+//
+// Kasim's editor for the AI briefs: a dialog inside the Sheet
+// (Project Ideas menu → "AI Brief Control Panel", UI implemented
+// in BriefControl.html) listing every submission with its five
+// brief parts in editable fields. Save writes straight into the
+// Brief columns — the website feeds read the sheet live, so edits
+// appear on the site immediately. "Regenerate" asks the AI for a
+// fresh brief for that one idea and saves it at once; a failed
+// generation leaves the existing brief untouched.
+// Rows are addressed by sheet row number, verified against the
+// row's Public ID before every write, so a shifted sheet can never
+// receive an edit meant for a different idea. (These three
+// functions are called from the dialog via google.script.run, so
+// their names carry no trailing underscore.)
+
+function openBriefControlPanel() {
+  var html = HtmlService.createHtmlOutputFromFile("BriefControl")
+    .setWidth(980)
+    .setHeight(660);
+  SpreadsheetApp.getUi().showModalDialog(html, "AI Brief Control Panel");
+}
+
+function briefControlList() {
+  try {
+    var values = getSheet_().getDataRange().getValues();
+    var items = [];
+    for (var r = 1; r < values.length; r++) {
+      var row = values[r];
+      var idea = String(row[5] || "").trim();
+      if (!idea) continue;
+      items.push({
+        row: r + 1,
+        id: String(row[PUBLIC_ID_COL] || "").trim(),
+        name: String(row[2] || "").trim(),
+        idea: idea,
+        status: String(row[16] || "").trim() || "Submitted",
+        parts: briefPartsFromRow_(row)
+      });
+    }
+    items.reverse(); // newest first
+    return { result: "ok", items: items };
+  } catch (err) {
+    return { result: "error", error: String(err) };
+  }
+}
+
+function briefControlRow_(rowNum, id) {
+  var sheet = getSheet_();
+  var values = sheet.getDataRange().getValues();
+  var row = values[rowNum - 1];
+  if (!row) return null;
+  var currentId = String(row[PUBLIC_ID_COL] || "").trim();
+  if (id && currentId !== id) return null;
+  return { sheet: sheet, row: row };
+}
+
+function briefControlSave(rowNum, id, parts) {
+  try {
+    var found = briefControlRow_(rowNum, id);
+    if (!found) return { result: "error", error: "That row has changed — close and reopen the panel." };
+    writeBriefParts_(found.sheet, rowNum, {
+      problem: capBriefField_(parts && parts.problem, 160),
+      solution: capBriefField_(parts && parts.solution, 160),
+      build: capBriefField_(parts && parts.build, 160),
+      tech: capBriefField_(parts && parts.tech, 120),
+      audience: capBriefField_(parts && parts.audience, 160)
+    });
+    return { result: "ok" };
+  } catch (err) {
+    return { result: "error", error: String(err) };
+  }
+}
+
+function briefControlRegenerate(rowNum, id) {
+  try {
+    var found = briefControlRow_(rowNum, id);
+    if (!found) return { result: "error", error: "That row has changed — close and reopen the panel." };
+    var parts = generateBriefParts_(found.row);
+    if (!parts) return { result: "error", error: "The AI could not generate a brief just now — your existing brief is untouched. Try again in a moment." };
+    writeBriefParts_(found.sheet, rowNum, parts);
+    return { result: "ok", parts: parts };
+  } catch (err) {
+    return { result: "error", error: String(err) };
+  }
 }
 
 // ---------- AI help chat (Groq) ----------
